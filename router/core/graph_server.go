@@ -505,7 +505,7 @@ func (s *graphMux) buildOperationCaches(srv *graphServer) (computeSha256 bool, e
 		computeSha256 = true
 	}
 
-	if srv.metricConfig.Prometheus.IncludeSchemaUsage {
+	if srv.metricConfig.Prometheus.PromSchemaFieldUsage.Enabled && srv.metricConfig.Prometheus.PromSchemaFieldUsage.IncludeOperationSha {
 		// Prometheus schema field usage metrics use sha256, so we need to ensure it is computed
 		computeSha256 = true
 	}
@@ -727,7 +727,7 @@ func (s *graphServer) buildGraphMux(ctx context.Context,
 		metrics:                gm.metricStore,
 		gqlMetricsExporter:     s.gqlMetricsExporter,
 		exportEnabled:          s.graphqlMetricsConfig.Enabled,
-		promIncludeSchemaUsage: s.metricConfig.Prometheus.IncludeSchemaUsage,
+		promIncludeSchemaUsage: s.metricConfig.Prometheus.PromSchemaFieldUsage.Enabled,
 		routerConfigVersion:    routerConfigVersion,
 		logger:                 s.logger,
 	})
@@ -926,7 +926,7 @@ func (s *graphServer) buildGraphMux(ctx context.Context,
 		baseURL:        s.baseURL,
 		transport:      s.executionTransport,
 		logger:         s.logger,
-		trackUsageInfo: s.graphqlMetricsConfig.Enabled || s.metricConfig.Prometheus.IncludeSchemaUsage,
+		trackUsageInfo: s.graphqlMetricsConfig.Enabled || s.metricConfig.Prometheus.PromSchemaFieldUsage.Enabled,
 		subscriptionClientOptions: &SubscriptionClientOptions{
 			PingInterval: s.engineExecutionConfiguration.WebSocketClientPingInterval,
 		},
@@ -1135,7 +1135,7 @@ func (s *graphServer) buildGraphMux(ctx context.Context,
 		AlwaysSkipLoader:            s.engineExecutionConfiguration.Debug.AlwaysSkipLoader,
 		QueryPlansEnabled:           s.Config.queryPlansEnabled,
 		QueryPlansLoggingEnabled:    s.engineExecutionConfiguration.Debug.PrintQueryPlans,
-		TrackSchemaUsageInfo:        s.graphqlMetricsConfig.Enabled || s.metricConfig.Prometheus.IncludeSchemaUsage,
+		TrackSchemaUsageInfo:        s.graphqlMetricsConfig.Enabled || s.metricConfig.Prometheus.PromSchemaFieldUsage.Enabled,
 		ClientHeader:                s.clientHeader,
 		ComputeOperationSha256:      computeSha256,
 		ApolloCompatibilityFlags:    &s.apolloCompatibilityFlags,
