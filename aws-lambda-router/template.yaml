@@ -30,7 +30,7 @@ Resources:
       Runtime: provided.al2023
       Tracing: Active # Enable AWS X-Ray Tracing for Lambda Function
       Architectures:
-        - x86_64
+        - arm64
       Events:
         RootEndpoint:
           Properties:
@@ -45,7 +45,7 @@ Resources:
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           GRAPH_API_TOKEN: "" # Add your Graph API token here
-          STAGE: "Prod" # Add the stage e.g. "Prod" if you use the Lambda default endpoint
+          STAGE: "" # Add the stage e.g. "Prod" if you use the Lambda default endpoint
           DEV_MODE: "false" # Set to "true" to enable the dev mode
 
 Outputs:

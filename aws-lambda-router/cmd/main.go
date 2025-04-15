@@ -4,6 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/akrylysov/algnhsa"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/wundergraph/cosmo/aws-lambda-router/internal"
@@ -12,15 +16,22 @@ import (
 	"github.com/wundergraph/cosmo/router/pkg/logging"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"net/http"
-	"os"
-	"time"
 )
 
 const (
 	telemetryServiceName = "aws-lambda-router"
 	routerConfigPath     = "router.json"
 )
+
+func removeAcceptEncodingHeader(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Remove the accept-encoding header
+			r.Header.Del("Accept-Encoding")
+			
+			// Call the next handler
+			next.ServeHTTP(w, r)
+	})
+}
 
 var (
 	defaultSampleRate = 0.2 // 20% of requests will be sampled
@@ -80,7 +91,9 @@ func main() {
 		return
 	}
 
-	lambdaHandler := algnhsa.New(svr.HttpServer().Handler, nil)
+	wrappedHandler := removeAcceptEncodingHeader(svr.HttpServer().Handler)
+	lambdaHandler := algnhsa.New(wrappedHandler, nil)
+
 	lambda.StartWithOptions(lambdaHandler,
 		lambda.WithContext(ctx),
 		// Registered an internal extensions which gives us 500ms to shutdown
